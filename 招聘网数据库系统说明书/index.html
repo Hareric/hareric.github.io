@@ -1,0 +1,1162 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>招聘网数据库系统说明书 | Hareric</title><meta name="description" content="一、需求分析1.1 背景　　随着互联网的快速发展，网民数量的不断增加，人们上网的途径也越来越方便，网络在现代人生活中的应用也越来越广泛。与互联网相结合的网络招聘在解决了部分大学生工作的同时，也大大减少了人力、物力的消耗以及大学毕业生奔波路途的时间和精力，其效果也将远远超过传统招聘所获得的效果。目前，网络招聘已发展成为深受招聘求职者喜欢的一种求职招聘环境。互联网给求职招聘者提供了丰富的资源，未他们创"><meta name="keywords" content="数据库,Django,文档"><meta name="author" content="Eric Chen"><meta name="copyright" content="Eric Chen"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/dratini32X32.png"><link rel="canonical" href="https://hareric.com/%E6%8B%9B%E8%81%98%E7%BD%91%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E8%AF%B4%E6%98%8E%E4%B9%A6/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="招聘网数据库系统说明书"><meta property="og:url" content="https://hareric.com/%E6%8B%9B%E8%81%98%E7%BD%91%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E8%AF%B4%E6%98%8E%E4%B9%A6/"><meta property="og:site_name" content="Hareric"><meta property="og:description" content="一、需求分析1.1 背景　　随着互联网的快速发展，网民数量的不断增加，人们上网的途径也越来越方便，网络在现代人生活中的应用也越来越广泛。与互联网相结合的网络招聘在解决了部分大学生工作的同时，也大大减少了人力、物力的消耗以及大学毕业生奔波路途的时间和精力，其效果也将远远超过传统招聘所获得的效果。目前，网络招聘已发展成为深受招聘求职者喜欢的一种求职招聘环境。互联网给求职招聘者提供了丰富的资源，未他们创"><meta property="og:image" content="https://hareric.com/img/gundam/gundam_107.jpg"><meta property="article:published_time" content="2016-06-03T14:52:11.000Z"><meta property="article:modified_time" content="2021-05-23T13:45:24.052Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'true'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: true,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2021-05-23 21:45:24'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.4.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/dratini512X512.png" onerror="onerror=null;src='/img/image_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">38</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E3%80%81%E9%9C%80%E6%B1%82%E5%88%86%E6%9E%90"><span class="toc-number">1.</span> <span class="toc-text">一、需求分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-1-%E8%83%8C%E6%99%AF"><span class="toc-number">1.1.</span> <span class="toc-text">1.1 背景</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-2%E5%8A%9F%E8%83%BD%E9%9C%80%E6%B1%82"><span class="toc-number">1.2.</span> <span class="toc-text">1.2功能需求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#1-3%E6%95%B0%E6%8D%AE%E9%9C%80%E6%B1%82"><span class="toc-number">1.3.</span> <span class="toc-text">1.3数据需求</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-1%E6%B5%81%E7%A8%8B%E5%9B%BE"><span class="toc-number">1.3.1.</span> <span class="toc-text">1.3.1流程图</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#1-3-2%E6%95%B0%E6%8D%AE%E9%9C%80%E6%B1%82%E8%A1%A8"><span class="toc-number">1.3.2.</span> <span class="toc-text">1.3.2数据需求表</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%8C%E3%80%81%E6%A6%82%E5%BF%B5%E6%A8%A1%E5%9E%8B"><span class="toc-number">2.</span> <span class="toc-text">二、概念模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%89%E3%80%81%E9%80%BB%E8%BE%91%E6%A8%A1%E5%9E%8B"><span class="toc-number">3.</span> <span class="toc-text">三、逻辑模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%9B%E3%80%81%E5%BB%BA%E8%A1%A8%E4%BB%A3%E7%A0%81"><span class="toc-number">4.</span> <span class="toc-text">四、建表代码</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%BA%94%E3%80%81%E6%8B%9B%E8%81%98%E7%BD%91%E6%95%B0%E6%8D%AE%E5%BA%93%E6%9F%A5%E8%AF%A2%E7%B3%BB%E7%BB%9F%E8%AF%B4%E6%98%8E"><span class="toc-number">5.</span> <span class="toc-text">五、招聘网数据库查询系统说明</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#5-1%E7%B3%BB%E7%BB%9F%E4%BB%8B%E7%BB%8D"><span class="toc-number">5.1.</span> <span class="toc-text">5.1系统介绍</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-2%E7%95%8C%E9%9D%A2%E5%B1%95%E7%A4%BA"><span class="toc-number">5.2.</span> <span class="toc-text">5.2界面展示</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-1%E7%99%BB%E9%99%86%E7%95%8C%E9%9D%A2"><span class="toc-number">5.2.1.</span> <span class="toc-text">5.2.1登陆界面</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-2%E6%99%AE%E9%80%9A%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95"><span class="toc-number">5.2.2.</span> <span class="toc-text">5.2.2普通用户登录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-3%E4%BC%81%E4%B8%9A%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95"><span class="toc-number">5.2.3.</span> <span class="toc-text">5.2.3企业用户登录</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#5-2-4%E6%95%B0%E6%8D%AE%E5%BA%93%E5%90%8E%E5%8F%B0%E7%AE%A1%E7%90%86"><span class="toc-number">5.2.4.</span> <span class="toc-text">5.2.4数据库后台管理</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-3-%E7%B3%BB%E7%BB%9F%E4%BD%BF%E7%94%A8%E8%AF%B4%E6%98%8E"><span class="toc-number">5.3.</span> <span class="toc-text">5.3 系统使用说明</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(/img/gundam/gundam_107.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">Hareric</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">招聘网数据库系统说明书</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-06-03T14:52:11.000Z" title="发表于 2016-06-03 22:52:11">2016-06-03</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-05-23T13:45:24.052Z" title="更新于 2021-05-23 21:45:24">2021-05-23</time></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="一、需求分析"><a href="#一、需求分析" class="headerlink" title="一、需求分析"></a>一、需求分析</h2><h3 id="1-1-背景"><a href="#1-1-背景" class="headerlink" title="1.1 背景"></a>1.1 背景</h3><p>　　随着互联网的快速发展，网民数量的不断增加，人们上网的途径也越来越方便，网络在现代人生活中的应用也越来越广泛。与互联网相结合的网络招聘在解决了部分大学生工作的同时，也大大减少了人力、物力的消耗以及大学毕业生奔波路途的时间和精力，其效果也将远远超过传统招聘所获得的效果。目前，网络招聘已发展成为深受招聘求职者喜欢的一种求职招聘环境。互联网给求职招聘者提供了丰富的资源，未他们创造出一种良好的求职招聘平台，具备现实中人才中介机构的功能。招聘求职网站为应聘者提供了方便、快捷的应聘途径，不仅信息更新快、信息数量多、而且选择余地大。对招聘单位来说，招聘网站不仅为他们开辟了招聘人才的新方式，而且使其工作流程更加方便、快捷、高效。使得招聘工作中的人员初选工作变得轻松简单。双方通过交互式的网上登陆和查询完成信息的交流。这种现代化招聘方式与传统招聘方式有很大的不同，它不需要时间和空间上保持绝对的一致，方便了双方时间的选择。<br>　　网络招聘在节约招聘单位和求职者双方的费用上有很大的优势。求职者可以通过互联网对工作类型、地点、工作待遇等条件进行筛选之后快速得到自己想要的招聘信息并投递简历，大大减少了打印简历和证书、交通等当面的费用；对于招聘单位而言，在网上发布招聘信息不仅仅能够帮助扩大招聘信息的覆盖面及宣传度，还能帮助企业节约不少传统招聘所需的人力、财力资源，而且对信息的发布和修改也十分方便。招聘网就是这样一个跨时间和空间的信息互动过程。招聘单位与求职者的双方的积极互动将促进网络招聘的功能更加完善，而网络招聘也将减少企业招聘和求职者应聘过程中的盲目行为，大大提高招聘求职规模和招聘求职成功率。<br><span id="more"></span></p>
+<h3 id="1-2功能需求"><a href="#1-2功能需求" class="headerlink" title="1.2功能需求"></a>1.2功能需求</h3><p>网站主要用户角色分为应聘用户、企业用户<br>个人用户：　用户注册<br>　　　　　　用户信息管理<br>　　　　　　创建简历<br>　　　　　　简历信息管理<br>　　　　　　投放简历<br>企业用户：　用户注册<br>　　　　　　用户信息管理<br>　　　　　　发布招聘信息<br>　　　　　　招聘信息管理<br>　　　　　　获得相关简历的投放信息<br>　　　　　　管理简历的评判成绩</p>
+<h3 id="1-3数据需求"><a href="#1-3数据需求" class="headerlink" title="1.3数据需求"></a>1.3数据需求</h3><h4 id="1-3-1流程图"><a href="#1-3-1流程图" class="headerlink" title="1.3.1流程图"></a>1.3.1流程图</h4><p><img src="/img/tuchuang/db/image001.png" alt="招聘网---数据流程图"></p>
+<h4 id="1-3-2数据需求表"><a href="#1-3-2数据需求表" class="headerlink" title="1.3.2数据需求表"></a>1.3.2数据需求表</h4><p>数据组名：用户信息<br>与其他数据的约束关系：与简历存在一对多关系</p>
+<table>
+<thead>
+<tr>
+<th>数据项名</th>
+<th>数据类型</th>
+<th>数据长度</th>
+<th>小数位数</th>
+<th>约束</th>
+<th>允许空值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>用户名</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>-</td>
+<td>否</td>
+<td></td>
+</tr>
+<tr>
+<td>口令</td>
+<td>Varchar</td>
+<td>20</td>
+<td>长度为6-16个字符</td>
+<td>不允许空格</td>
+<td>否</td>
+<td>可用MD5算法加密</td>
+</tr>
+<tr>
+<td>性别</td>
+<td>Varchar</td>
+<td>2</td>
+<td>-</td>
+<td>-</td>
+<td>否    </td>
+</tr>
+<tr>
+<td>邮件地址</td>
+<td>Varchar</td>
+<td>32</td>
+<td>-</td>
+<td>unique</td>
+<td>否    </td>
+</tr>
+<tr>
+<td>联系电话</td>
+<td>Varchar</td>
+<td>11</td>
+<td>-</td>
+<td>unique</td>
+<td>否    </td>
+</tr>
+</tbody>
+</table>
+<p>数据组名：企业信息<br>与其他数据的约束关系：与招聘信息存在一对多关系</p>
+<table>
+<thead>
+<tr>
+<th>数据项名</th>
+<th>数据类型</th>
+<th>数据长度</th>
+<th>小数位数</th>
+<th>约束</th>
+<th>允许空值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>企业名称</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>foreign key</td>
+<td>否</td>
+</tr>
+<tr>
+<td>公司地址</td>
+<td>Varchar</td>
+<td>128</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>公司成立时间</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>邮件地址</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td>unique</td>
+<td>否</td>
+</tr>
+<tr>
+<td>公司性质</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>联系电话</td>
+<td>Varchar</td>
+<td>11</td>
+<td>-</td>
+<td>unique</td>
+<td>否</td>
+</tr>
+<tr>
+<td>公司规模</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>公司简介</td>
+<td>Varchar</td>
+<td>255</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>数据组名：简历信息<br>与其他数据的约束关系：与用户存在一对一关系</p>
+<table>
+<thead>
+<tr>
+<th>数据项名</th>
+<th>数据类型</th>
+<th>数据长度</th>
+<th>小数位数</th>
+<th>约束</th>
+<th>允许空值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>求职类别</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>求职者姓名</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>出生日期</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>现居住地</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>学历</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>工作经验</td>
+<td>Varchar</td>
+<td>128</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>毕业院校</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>是</td>
+</tr>
+<tr>
+<td>主修专业</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>是</td>
+</tr>
+<tr>
+<td>邮件</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>unique</td>
+<td>否</td>
+</tr>
+<tr>
+<td>联系电话</td>
+<td>Int</td>
+<td>20</td>
+<td>-</td>
+<td>unique</td>
+<td>否</td>
+</tr>
+<tr>
+<td>个人介绍</td>
+<td>Varchar</td>
+<td>128</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>期望工作</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<p>数据组名：招聘信息<br>与其他数据的约束关系：与企业存在多对一关系</p>
+<table>
+<thead>
+<tr>
+<th>数据项名</th>
+<th>数据类型</th>
+<th>数据长度</th>
+<th>小数位数</th>
+<th>约束</th>
+<th>允许空值</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>所发布岗位类别</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>岗位名称</td>
+<td>Varchar</td>
+<td>2</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>岗位地址</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>学历要求</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>性别要求</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td></td>
+<td>是</td>
+</tr>
+<tr>
+<td>工作经验要求</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>年龄要求</td>
+<td>Int</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>岗位地址</td>
+<td>Varchar</td>
+<td>40</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>工资</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>招聘人数</td>
+<td>Int</td>
+<td>10</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+<tr>
+<td>联系电话</td>
+<td>Varchar</td>
+<td>11</td>
+<td>-</td>
+<td>unique</td>
+<td>否</td>
+</tr>
+<tr>
+<td>邮箱</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>unique</td>
+<td>否</td>
+</tr>
+<tr>
+<td>岗位简介</td>
+<td>Varchar</td>
+<td>128</td>
+<td>-</td>
+<td></td>
+<td>是</td>
+</tr>
+<tr>
+<td>发布时间</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td></td>
+<td>否</td>
+</tr>
+</tbody>
+</table>
+<h2 id="二、概念模型"><a href="#二、概念模型" class="headerlink" title="二、概念模型"></a>二、概念模型</h2><p> <img src="/img/tuchuang/db/image003.png" alt="招聘网 E-R图"></p>
+<h2 id="三、逻辑模型"><a href="#三、逻辑模型" class="headerlink" title="三、逻辑模型"></a>三、逻辑模型</h2><p> <img src="/img/tuchuang/db/image005.png" alt="招聘网---关系模式图"></p>
+<p><strong>1. 用户信息（user）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>用户id,主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>mid</td>
+<td>用户对应的网站管理信息</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照manage中的id</td>
+</tr>
+<tr>
+<td>name</td>
+<td>姓名/联系人</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>sex</td>
+<td>性别</td>
+<td>Varchar</td>
+<td>2</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>email</td>
+<td>邮件地址</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>tel</td>
+<td>联系电话</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2. 公司信息（company）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>公司id，主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>mid</td>
+<td>公司对应的网站管理信息</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照manage中的id</td>
+</tr>
+<tr>
+<td>name</td>
+<td>公司名称</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>address</td>
+<td>公司地址</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>establish</td>
+<td>公司成立时间</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>email</td>
+<td>邮件地址</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>是</td>
+<td>-</td>
+</tr>
+<tr>
+<td>property</td>
+<td>公司性质</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>tel</td>
+<td>联系电话</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>scale</td>
+<td>公司规模</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>intro</td>
+<td>公司简介</td>
+<td>Varchar</td>
+<td>300</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>3. 管理信息（manage）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>注册id，主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>password</td>
+<td>密码</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>role</td>
+<td>用户角色</td>
+<td>Varchar</td>
+<td>2</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>4. 简历（CV）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>简历id，主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>category</td>
+<td>求职类型</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照job_category中的cate_name</td>
+</tr>
+<tr>
+<td>name</td>
+<td>名字</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>sex</td>
+<td>性别</td>
+<td>Varchar</td>
+<td>2</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>birth</td>
+<td>出生日期</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>address</td>
+<td>居住地址</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>education</td>
+<td>学历</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>work_exp</td>
+<td>工作经验</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>school</td>
+<td>毕业院校</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>是</td>
+<td>-</td>
+</tr>
+<tr>
+<td>major</td>
+<td>主修专业</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>是</td>
+<td>-</td>
+</tr>
+<tr>
+<td>email</td>
+<td>邮箱</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>tel</td>
+<td>联系电话</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>intro</td>
+<td>个人介绍</td>
+<td>Varchar</td>
+<td>300</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>expected_job</td>
+<td>期望工作</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>5. 岗位（job_deliver）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>岗位id，主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>category</td>
+<td>岗位类别</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照manage中的id</td>
+</tr>
+<tr>
+<td>job_name</td>
+<td>岗位名称</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>sex</td>
+<td>性别要求</td>
+<td>Varchar</td>
+<td>5</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>education</td>
+<td>学历要求</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>work_year</td>
+<td>工作经验要求</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>age</td>
+<td>年龄要求</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>position</td>
+<td>岗位地址</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>salary</td>
+<td>工资</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>num</td>
+<td>招聘人数</td>
+<td>Int</td>
+<td>4</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>contact</td>
+<td>联系方式</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>description</td>
+<td>岗位介绍</td>
+<td>Varchar</td>
+<td>300</td>
+<td>-</td>
+<td>是</td>
+<td>-</td>
+</tr>
+<tr>
+<td>created_time</td>
+<td>发布时间</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>6. 岗位类别（job_category）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>cate_name</td>
+<td>岗位类别</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td></td>
+<td>-</td>
+</tr>
+<tr>
+<td>pre_cate</td>
+<td>岗位的父类类别，若无父类，则为空</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-    否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<p><strong>7. 用户-简历（user-CV）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>用户-简历id，主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>user_id</td>
+<td>对应的用户id</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照user中的id</td>
+</tr>
+<tr>
+<td>cv_id</td>
+<td>对应的简历id</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照CV中的id</td>
+</tr>
+</tbody>
+</table>
+<p><strong>8. 公司-岗位（company-job）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>公司-岗位id，主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>company_id</td>
+<td>对应的公司id</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照company中的id</td>
+</tr>
+<tr>
+<td>job_deliver_id</td>
+<td>对应的岗位id</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照job_deliver中的id</td>
+</tr>
+</tbody>
+</table>
+<p><strong>9. 简历投递（job-wanted）</strong></p>
+<table>
+<thead>
+<tr>
+<th>属性名</th>
+<th>说明</th>
+<th>类型</th>
+<th>长度</th>
+<th>默认值</th>
+<th>允许空值</th>
+<th>约束</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>id</td>
+<td>用户-简历id，主码</td>
+<td>Varchar</td>
+<td>15</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+<tr>
+<td>job_deliver_id</td>
+<td>对应的招聘岗位id</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照job_deliver中的id</td>
+</tr>
+<tr>
+<td>cv_id</td>
+<td>对应的简历id</td>
+<td>Varchar</td>
+<td>20</td>
+<td>-</td>
+<td>否</td>
+<td>外码，参照CV中的id</td>
+</tr>
+<tr>
+<td>result</td>
+<td>投递状态</td>
+<td>Varchar</td>
+<td>10</td>
+<td>-</td>
+<td>否</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h2 id="四、建表代码"><a href="#四、建表代码" class="headerlink" title="四、建表代码"></a>四、建表代码</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br></pre></td><td class="code"><pre><span class="line">1.建立数据库：</span><br><span class="line">CREATE DATABASE jobnetwork;</span><br><span class="line">USE jobnetwork;</span><br><span class="line"></span><br><span class="line">2.建立管理信息表：</span><br><span class="line">CREATE TABLE manage (</span><br><span class="line">  ID varchar(12) NOT NULL,            /* 注册者管理信息的id */</span><br><span class="line">  role varchar(20) NOT NULL,          /* 0代表应聘者，1代表公司 */</span><br><span class="line">  password varchar(20) NOT NULL,      /* 注册者的登录密码 */</span><br><span class="line">  PRIMARY KEY (ID)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">3.建立应聘者信息表：</span><br><span class="line">CREATE TABLE applicant (</span><br><span class="line">  ID varchar(11) NOT NULL,            /* 应聘者的id */</span><br><span class="line">  name varchar(20) NOT NULL,          /* 应聘者名字 */</span><br><span class="line">  sex varchar(10) NOT NULL,           /* 应聘者性别 */</span><br><span class="line">  email varchar(20) NOT NULL,         /* 应聘者邮箱 */</span><br><span class="line">  telephone varchar(20) NOT NULL,     /* 应聘者手机号码 */</span><br><span class="line">  mid_id varchar(12) NOT NULL,        /* 应聘者对应的注册管理信息的id */</span><br><span class="line">  PRIMARY KEY (ID),</span><br><span class="line">  FOREIGN KEY (mid_id) REFERENCES manage (ID)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">4.建立公司信息表：</span><br><span class="line">CREATE TABLE company (</span><br><span class="line">  ID varchar(11) NOT NULL,            /* 公司的id */</span><br><span class="line">  name varchar(20) NOT NULL,          /* 公司名字 */</span><br><span class="line">  address varchar(30) NOT NULL,       /* 公司地址 */</span><br><span class="line">  establish varchar(20) NOT NULL,     /* 公司建立时间 */</span><br><span class="line">  email varchar(20) NOT NULL,         /* 公司联系邮箱 */</span><br><span class="line">  property varchar(20) NOT NULL,      /* 公司性质 */</span><br><span class="line">  telephone varchar(20) NOT NULL,     /* 公司联系电话 */</span><br><span class="line">  scale varchar(20) NOT NULL,         /* 公司规模 */</span><br><span class="line">  intro varchar(300) NOT NULL,        /* 公司简介 */</span><br><span class="line">  mid_id varchar(12) NOT NULL,        /* 公司对应的注册管理信息的id */</span><br><span class="line">  PRIMARY KEY (ID),</span><br><span class="line">  FOREIGN KEY (mid_id) REFERENCES manage (ID)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">5.建立岗位类别表：</span><br><span class="line">CREATE TABLE jobcategory (</span><br><span class="line">  cate_name varchar(20) NOT NULL,     /* 岗位类别 */</span><br><span class="line">  pre_cate varchar(20) NOT NULL,      /* 岗位对应的父类别，若无则为空 */</span><br><span class="line">  PRIMARY KEY (cate_name)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">6.建立简历表：</span><br><span class="line">CREATE TABLE cv (</span><br><span class="line">  ID varchar(11) NOT NULL,            /* 简历的id */</span><br><span class="line">  name varchar(20) NOT NULL,          /* 应聘者名字 */</span><br><span class="line">  sex varchar(10) NOT NULL,           /* 应聘者性别 */</span><br><span class="line">  birth varchar(20) NOT NULL,         /* 应聘者出生日期 */</span><br><span class="line">  create_time varchar(20) NOT NULL,   /* 简历创建日期 */</span><br><span class="line">  location varchar(50) NOT NULL,      /* 应聘者先居住地 */</span><br><span class="line">  education varchar(20) NOT NULL,     /* 应聘者学历 */</span><br><span class="line">  work_exp varchar(100) NOT NULL,     /* 应聘者工作经历 */</span><br><span class="line">  school varchar(20) NOT NULL,        /* 应聘者毕业院校 */</span><br><span class="line">  major varchar(20) NOT NULL,         /* 应聘者专业 */</span><br><span class="line">  email varchar(20) NOT NULL,         /* 应聘者邮箱 */</span><br><span class="line">  telephone varchar(20) NOT NULL,     /* 应聘者手机号码 */</span><br><span class="line">  intro varchar(300) NOT NULL,        /* 应聘者简介 */</span><br><span class="line">  expected_job varchar(20) NOT NULL,  /* 应聘者期望应聘岗位 */</span><br><span class="line">  category_id varchar(20) NOT NULL,   /* 应聘者应聘岗位类别 */</span><br><span class="line">  PRIMARY KEY (ID),</span><br><span class="line">  FOREIGN KEY (category_id) REFERENCES jobcategory (cate_name)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">7.建立发布岗位表：</span><br><span class="line">CREATE TABLE jobdeliver (</span><br><span class="line">  ID varchar(11) NOT NULL,            /* 发布的岗位id */</span><br><span class="line">  job_name varchar(20) NOT NULL,      /* 岗位名字 */</span><br><span class="line">  position varchar(40) NOT NULL,      /* 岗位工作地点 */</span><br><span class="line">  numb int NOT NULL,                  /* 岗位招聘人数 */</span><br><span class="line">  sex varchar(10) NOT NULL,           /* 性别要求 */</span><br><span class="line">  work_year varchar(5) NOT NULL,      /* 工作经历要求 */</span><br><span class="line">  age varchar(10) NOT NULL,           /* 年龄要求 */</span><br><span class="line">  education varchar(20) NOT NULL,     /* 学历要求 */</span><br><span class="line">  salary varchar(20) NOT NULL,        /* 工资 */</span><br><span class="line">  intro varchar(300) NOT NULL,        /* 岗位介绍 */</span><br><span class="line">  contact varchar(20) NOT NULL,       /* 联系方式 */</span><br><span class="line">  created_time varchar(20) NOT NULL,  /* 创建时间 */</span><br><span class="line">  category_id varchar(20) NOT NULL,   /* 岗位所属类别 */</span><br><span class="line">  PRIMARY KEY (ID),</span><br><span class="line">  FOREIGN KEY (category_id) REFERENCES jobcategory (cate_name)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">8.建立公司-岗位表：</span><br><span class="line">CREATE TABLE companyjob (</span><br><span class="line">  ID varchar(11) NOT NULL,            /* 公司-岗位的id */</span><br><span class="line">  company_id varchar(11) NOT NULL,    /* 公司的id */</span><br><span class="line">  job_deliver_id varchar(11) NOT NULL,/* 已发布岗位的id */</span><br><span class="line">  PRIMARY KEY (ID),</span><br><span class="line">  FOREIGN KEY (job_deliver_id) REFERENCES jobdeliver (ID),</span><br><span class="line">  FOREIGN KEY (company_id) REFERENCES company (ID)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">9.建立应聘者-简历表：</span><br><span class="line">CREATE TABLE usercv (</span><br><span class="line">  ID varchar(11) NOT NULL,            /* 用户-简历的id */</span><br><span class="line">  cv_id varchar(11) NOT NULL,         /* 简历的id */</span><br><span class="line">  applicant_id varchar(11) NOT NULL,  /* 应聘者的id */</span><br><span class="line">  PRIMARY KEY (ID),</span><br><span class="line">  FOREIGN KEY (applicant_id) REFERENCES applicant (ID),</span><br><span class="line">  FOREIGN KEY (cv_id) REFERENCES cv (ID)</span><br><span class="line">)</span><br><span class="line"></span><br><span class="line">10.建立岗位-建立投递表：</span><br><span class="line">CREATE TABLE jobwanted (</span><br><span class="line">  ID varchar(11) NOT NULL,            /* 简历-岗位 投递的id */</span><br><span class="line">  result varchar(10) NOT NULL,        /* 投递结果 */</span><br><span class="line">  cv_id varchar(11) NOT NULL,         /* 简历的id */</span><br><span class="line">  job_deliver_id varchar(11) NOT NULL,/* 发布岗位的id */</span><br><span class="line">  PRIMARY KEY (ID),</span><br><span class="line">  FOREIGN KEY (job_deliver_id) REFERENCES jobdeliver (ID),</span><br><span class="line">  FOREIGN KEY (cv_id) REFERENCES cv (ID)</span><br><span class="line">)</span><br></pre></td></tr></table></figure>
+<h2 id="五、招聘网数据库查询系统说明"><a href="#五、招聘网数据库查询系统说明" class="headerlink" title="五、招聘网数据库查询系统说明"></a>五、招聘网数据库查询系统说明</h2><h3 id="5-1系统介绍"><a href="#5-1系统介绍" class="headerlink" title="5.1系统介绍"></a>5.1系统介绍</h3><p>1)操作系统 系统搭建在Ubuntu系统上。Ubuntu是一免费开源操作系统，是基于Linux的发行版本，具有开放性和高性价比等显著特点。同时Ubuntu具有庞大的社区力量支持，可以方便地从社区获得帮助。系统选用的是Ubuntu14.04版本，该版本代号为“Trusty Tahr”（值得信赖的塔尔羊），是一个长期支持版本，有很好的性能和交互性。</p>
+<p>2）开发语言 系统主要使用python，python是一种完全面向对象、解释型计算机程序设计语言，语法简洁清晰，拥有丰富和强大的库，易读且易维护，提供API，能方便进行维护和管理。</p>
+<p>3）数据库管理系统<br>系统选用SQLite数据库，SQLite是遵守ACID的关系数据库管理系统，它包含在一个相对小的C程式库中。与许多其它数据库管理系统不同，SQLite不是一个客户端/服务器结构的数据库引擎，而是被集成在用户程序中。</p>
+<p>4）开发框架 系统选用Django框架，Django是一个开放源代码的Web应用框架，由Python写成。采用了MVC的软件设计模式。它强调代码复用,多个组件可以很方便的以“插件”形式服务于整个框架，有许多功能强大的第三方插件，具有很强的可扩展性。</p>
+<h3 id="5-2界面展示"><a href="#5-2界面展示" class="headerlink" title="5.2界面展示"></a>5.2界面展示</h3><h4 id="5-2-1登陆界面"><a href="#5-2-1登陆界面" class="headerlink" title="5.2.1登陆界面"></a>5.2.1登陆界面</h4><p> <img src="/img/tuchuang/db/image007.png" alt="登陆界面"><br>输入账号和密码，查询数据库并与密码匹配成功后可登陆<br><img src="/img/tuchuang/db/image009.png" alt="登录失败1"> <img src="/img/tuchuang/db/image011.png" alt="登录失败2"><br>若查询失败则无法登陆</p>
+<h4 id="5-2-2普通用户登录"><a href="#5-2-2普通用户登录" class="headerlink" title="5.2.2普通用户登录"></a>5.2.2普通用户登录</h4><p> <img src="/img/tuchuang/db/image013.png" alt="普通用户登录"><br>获得用户详细信息，和对应的简历列表<br><img src="/img/tuchuang/db/image015.png" alt="简历的详细信息"><br>每份简历的详细信息</p>
+<h4 id="5-2-3企业用户登录"><a href="#5-2-3企业用户登录" class="headerlink" title="5.2.3企业用户登录"></a>5.2.3企业用户登录</h4><p> <img src="/img/tuchuang/db/image017.png" alt="企业用户详细信息"><br>获得企业用户详细信息，和对应的发布的招聘信息列表<br><img src="/img/tuchuang/db/image019.png" alt="详细招聘信息"><br>每条招聘的详细招聘信息<br><img src="/img/tuchuang/db/image021.png" alt="对应该招聘投放的简历"><br>以及对应该招聘投放的简历</p>
+<h4 id="5-2-4数据库后台管理"><a href="#5-2-4数据库后台管理" class="headerlink" title="5.2.4数据库后台管理"></a>5.2.4数据库后台管理</h4><p><img src="/img/tuchuang/db/image023.png" alt="此处输入图片的描述"><br>用来管理数据库的后台，实现增删查改。</p>
+<h3 id="5-3-系统使用说明"><a href="#5-3-系统使用说明" class="headerlink" title="5.3 系统使用说明"></a>5.3 系统使用说明</h3><p>系统运行需求：<br>系统环境：ubuntu14.04/OS X<br>程序语言：python 2.7.+<br>框架: django 1.8.0+</p>
+<p>系统下载:<br>使用github下载：<br>git clone <a target="_blank" rel="noopener" href="https://github.com/Hareric/dbBigHW.git">https://github.com/Hareric/dbBigHW.git</a><br>直接下载：<br><a target="_blank" rel="noopener" href="https://github.com/Hareric/dbBigHW/archive/master.zip">https://github.com/Hareric/dbBigHW/archive/master.zip</a></p>
+<p>系统运行：<br>进入该系统根目录，终端下执行python manage.py runserver开启本地服务器<br>浏览器访问: 127.0.0.1:8000/home 进入查询页面<br>浏览器访问: 127.0.0.1:8000/admin 进入数据库后台管理页面<br>管理员帐号: admin 密码: admin</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric Chen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://hareric.com/%E6%8B%9B%E8%81%98%E7%BD%91%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E8%AF%B4%E6%98%8E%E4%B9%A6/">https://hareric.com/%E6%8B%9B%E8%81%98%E7%BD%91%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E8%AF%B4%E6%98%8E%E4%B9%A6/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://hareric.com" target="_blank">Hareric</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/%E6%95%B0%E6%8D%AE%E5%BA%93/">数据库</a><a class="post-meta__tags" href="/tags/Django/">Django</a><a class="post-meta__tags" href="/tags/%E6%96%87%E6%A1%A3/">文档</a></div><div class="post_share"><div class="social-share" data-image="/img/gundam/gundam_107.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/%E8%8A%B120%E5%88%86%E9%92%9F%E5%86%99%E7%9A%84-%E5%A4%A7%E7%99%BD%E8%AF%9D%E8%AE%B2%E8%A7%A3%E5%A6%82%E4%BD%95%E7%BB%99github%E4%B8%8A%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE%E4%BB%A3%E7%A0%81/"><img class="prev-cover" src="/img/gundam/gundam_74.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">花20分钟写的-大白话讲解如何给github上项目贡献代码</div></div></a></div><div class="next-post pull-right"><a href="/scikit-learn%E7%9A%84%E5%AE%89%E8%A3%85%E5%92%8C%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B/"><img class="next-cover" src="/img/gundam/gundam_7.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">scikit-learn的安装和基本使用教程</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/Java-DBhelper类/" title="Java DBhelper类"><img class="relatedPosts_cover" src="/img/gundam/gundam_38.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-10-11</div><div class="relatedPosts_title">Java DBhelper类</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(/img/gundam/gundam_107.jpg)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Eric Chen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>

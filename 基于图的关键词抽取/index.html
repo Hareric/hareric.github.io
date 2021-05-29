@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>基于图的关键词抽取(HITS算法和PageRank算法) | Hareric</title><meta name="description" content="项目研究背景：　　在关键词抽取研究中，最常用的一种方法就是通过计算一篇文档中词语的TF-IDF值（term frequency-inverse document frequency）,并对它们进行排序选取TopK个作为关键词，这是一种无监督的方法。另外一种方法是通过有监督的方法，通过训练学习一个分类器，将关键词抽取问题转化为对每个词语的二分类问题，从而选择出合适的关键词。　　无监督和有监督各有各的"><meta name="keywords" content="python,算法"><meta name="author" content="Eric Chen"><meta name="copyright" content="Eric Chen"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/dratini32X32.png"><link rel="canonical" href="https://hareric.com/%E5%9F%BA%E4%BA%8E%E5%9B%BE%E7%9A%84%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="基于图的关键词抽取(HITS算法和PageRank算法)"><meta property="og:url" content="https://hareric.com/%E5%9F%BA%E4%BA%8E%E5%9B%BE%E7%9A%84%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/"><meta property="og:site_name" content="Hareric"><meta property="og:description" content="项目研究背景：　　在关键词抽取研究中，最常用的一种方法就是通过计算一篇文档中词语的TF-IDF值（term frequency-inverse document frequency）,并对它们进行排序选取TopK个作为关键词，这是一种无监督的方法。另外一种方法是通过有监督的方法，通过训练学习一个分类器，将关键词抽取问题转化为对每个词语的二分类问题，从而选择出合适的关键词。　　无监督和有监督各有各的"><meta property="og:image" content="https://hareric.com/img/gundam/gundam_32.jpg"><meta property="article:published_time" content="2017-01-23T11:16:50.000Z"><meta property="article:modified_time" content="2021-05-22T08:23:47.377Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'true'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: true,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2021-05-22 16:23:47'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.4.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/dratini512X512.png" onerror="onerror=null;src='/img/image_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">38</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E7%A0%94%E7%A9%B6%E8%83%8C%E6%99%AF%EF%BC%9A"><span class="toc-number">1.</span> <span class="toc-text">项目研究背景：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A1%B9%E7%9B%AE%E5%85%B7%E4%BD%93%E6%80%9D%E8%B7%AF%EF%BC%9A"><span class="toc-number">2.</span> <span class="toc-text">项目具体思路：</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#PageRank-%E7%AE%97%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">PageRank 算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B"><span class="toc-number">3.1.</span> <span class="toc-text">算法流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link"><span class="toc-number">4.</span> <span class="toc-text"> </span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%BB%91%E6%B4%9E%E6%95%88%E5%BA%94"><span class="toc-number">4.1.</span> <span class="toc-text">黑洞效应</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-1"><span class="toc-number">5.</span> <span class="toc-text"> </span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E9%93%BE-%E9%A9%AC%E6%B0%8F%E9%93%BE%EF%BC%8C-Markov-Chain"><span class="toc-number">5.1.</span> <span class="toc-text">马尔可夫链(马氏链， Markov Chain)</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-2"><span class="toc-number">6.</span> <span class="toc-text"> </span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#PageRank%E7%AE%97%E6%B3%95%E7%9A%84%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E8%BF%87%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">6.1.</span> <span class="toc-text">PageRank算法的马尔科夫过程分析</span></a></li></ol></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#-3"><span class="toc-number"></span> <span class="toc-text"> </span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#HITS%E7%AE%97%E6%B3%95"><span class="toc-number">1.</span> <span class="toc-text">HITS算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="toc-number">1.1.</span> <span class="toc-text">基本概念</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9F%BA%E6%9C%AC%E5%81%87%E8%AE%BE"><span class="toc-number">1.2.</span> <span class="toc-text">基本假设</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#-4"><span class="toc-number">2.</span> <span class="toc-text"> </span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AE%97%E6%B3%95%E6%B5%81%E7%A8%8B-1"><span class="toc-number">2.1.</span> <span class="toc-text">算法流程</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C"><span class="toc-number">3.</span> <span class="toc-text">实验</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E4%B8%80%EF%BC%9A"><span class="toc-number">3.0.1.</span> <span class="toc-text">实验一：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E4%BA%8C%EF%BC%9A"><span class="toc-number">3.0.2.</span> <span class="toc-text">实验二：</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%AE%9E%E9%AA%8C%E6%80%BB%E7%BB%93"><span class="toc-number">3.0.3.</span> <span class="toc-text">实验总结</span></a></li></ol></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(/img/gundam/gundam_32.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">Hareric</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">基于图的关键词抽取(HITS算法和PageRank算法)</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2017-01-23T11:16:50.000Z" title="发表于 2017-01-23 19:16:50">2017-01-23</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-05-22T08:23:47.377Z" title="更新于 2021-05-22 16:23:47">2021-05-22</time></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><h2 id="项目研究背景："><a href="#项目研究背景：" class="headerlink" title="项目研究背景："></a>项目研究背景：</h2><p>　　在关键词抽取研究中，最常用的一种方法就是通过计算一篇文档中词语的TF-IDF值（term frequency-inverse document frequency）,并对它们进行排序选取TopK个作为关键词，这是一种无监督的方法。另外一种方法是通过有监督的方法，通过训练学习一个分类器，将关键词抽取问题转化为对每个词语的二分类问题，从而选择出合适的关键词。<br><span id="more"></span><br>　　无监督和有监督各有各的优势和缺点：无监督学习，不需要人工标注，训练集合的过程，因此更加方便和快捷；然而监督学习的方法，在进行了机器学习后，分类器更具有判断多种信息对关键词影响的能力，效果更优。但在信息爆炸的网络时代，人工标注训练集是非常耗时耗力的事情，更何况网络文档的主题常常随着时间变化剧烈，为了使分类器随时能够适应网络就必须随时进行训练和标注，显然这是不现实的。因此关键词抽取的研究主要还是集中在无监督的方法。<br>　　在信息检索领域，HITS算法和PageRank算法是搜索引擎中两个最基础和最重要的算法。其基本思想都是首先利用网页之间的链接关系构建网页的网络图，通过相邻节点之间的网页的重要性，计算出某个网页的重要性。<br>　　受PageRank的启发，提出了一种基于图的排序算法TextRank，通过将文档看作一个词的网络，该网络中的链接表示词与词之间的语义关系，然后利用PageRank计算网络图中词的重要性，选取重要性TopK个词作为关键词。同理也可将最初用于网页排序的HITS算法用来抽取关键词。</p>
+<h2 id="项目具体思路："><a href="#项目具体思路：" class="headerlink" title="项目具体思路："></a>项目具体思路：</h2><p>input: 一篇文档    output: k个关键词<br>一．构建文档的词典<br>　　 1. 去除停用词。<br>　　 2. 消重。<br>　　 3. 获得词典 vocab。</p>
+<p>二．构建词-词之间的关联矩阵<br>　　matrix[i][j]: 表示i词与j词之间的权值。初始值为0<br>　　1. 文章已分好段落。<br>　　2. 在一段新闻中，若w1和w2共现，则matrix[w1][w2]++，matrix[w2][w1]++</p>
+<p>三．利用词-词之间的关联矩阵构建词语之间的无向拓扑图</p>
+<p>四．评价节点重要性<br>　　计算拓扑图中每一个节点的PageRank值和Authority值用来评价节点的重要性，最后取TopK个节点作为本篇文章的关键词。</p>
+<h2 id="PageRank-算法"><a href="#PageRank-算法" class="headerlink" title="PageRank 算法"></a>PageRank 算法</h2><h3 id="算法流程"><a href="#算法流程" class="headerlink" title="算法流程"></a>算法流程</h3><p>　　PageRank的思想在于将一个网页级别/重要性的排序问题转化成了一个公共参与、以群体民主投票的方式求解的问题，网页之间的链接即被认为是投票行为。同时，各个站点投票的权重不同，重要的网站投票具有较大的分量，而该网站是否重要的标准还需要依照其PageRank值。<br>　　现在假设有4个网站A、B、C、D，则它们的初始PageRank都是0.25。对于B而言的话，它把自己的总价值分散投给了A和C，各占一半的PageRank，即0.125，C和D的情况同理。即一个网站投票给其它网站PageRank的值，需要除以它所链接到的网站总数。此时PageRank的计算公式为：</p>
+<pre><code>PR(A) = PR(B) / 2 + PR(C) / 1 + PR(D) / 3     
+PR(B) = PR(D) / 3 
+PR(C) = PR(B) / 2 + PR(D) / 3
+PR(D) = 0 
+</code></pre><p> <img src="http://img.my.csdn.net/uploads/201106/20/0_1308550749h06y.gif" alt="此处输入图片的描述"> </p>
+<table>
+<thead>
+<tr>
+<th>PageRank</th>
+<th>PR(A)</th>
+<th>PR(B)</th>
+<th>PR(C)</th>
+<th>PD(D)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>初始值</td>
+<td>0.25</td>
+<td>0.25</td>
+<td>0.25</td>
+<td>0.25</td>
+</tr>
+<tr>
+<td>第一次迭代后</td>
+<td>0.4583</td>
+<td>0.0833</td>
+<td>0.2083</td>
+<td>0</td>
+</tr>
+<tr>
+<td>第二次迭代后</td>
+<td>0.25</td>
+<td>0</td>
+<td>0.0417</td>
+<td>0</td>
+</tr>
+<tr>
+<td>第三次迭代后</td>
+<td>0.0417</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+<tr>
+<td>第四次迭代后</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>PageRank值计算过程的一般步骤可以概括如下：<br>（1）为每个网站设置一个初始的PageRank值。<br>（2）第一次迭代：每个网站得到一个新的PageRank。<br>（3）第二次迭代：用这组新的PageRank再按上述公式形成另一组新的PageRank。<br>（4）重复迭代直至PageRank值收敛</p>
+<h2 id=""><a href="#" class="headerlink" title=" "></a> </h2><h3 id="黑洞效应"><a href="#黑洞效应" class="headerlink" title="黑洞效应"></a>黑洞效应</h3><p>　　上图中，顶点Ａ由于无出度像黑洞一样吸收所有PR值，最后导致所有PR值为0。为了防止这种情况的发生，有人给出了一种解决办法：即如果一个网站没有外链，那么就假定该连通图内其余所有的网点都是它的外链，这样我们就避免了整体PageRank值被吸收的现象。</p>
+<h2 id="-1"><a href="#-1" class="headerlink" title=" "></a> </h2><h3 id="马尔可夫链-马氏链，-Markov-Chain"><a href="#马尔可夫链-马氏链，-Markov-Chain" class="headerlink" title="马尔可夫链(马氏链， Markov Chain)"></a>马尔可夫链(马氏链， Markov Chain)</h3><p><img src="http://hi.csdn.net/attachment/201106/20/0_1308550801pWe7.gif" alt="此处输入图片的描述"><br>针对以上该图，建立概率转移矩阵P，P[i][j]表示从顶点i到达顶点j的概率，那么矩阵表示就是：</p>
+<pre><code>0   0.5  0   0.5
+0   0    1   0
+0   0    0   1
+0   1    0   0
+</code></pre><p>我们所给定的初始向量是：(0.25   0.25       0.25       0.25)，做第一次迭代，就相当于用初始向量乘以上面的矩阵。第二次迭代就相当于第一次迭代的结果再乘以上面的矩阵……设转移概率矩阵为P，若存在正整数N，使得P^N&gt;0（每个元素大于0），这种链被称作正则链，它存在唯一的极限状态概率，并且与初始状态无关。</p>
+<h2 id="-2"><a href="#-2" class="headerlink" title=" "></a> </h2><h3 id="PageRank算法的马尔科夫过程分析"><a href="#PageRank算法的马尔科夫过程分析" class="headerlink" title="PageRank算法的马尔科夫过程分析"></a>PageRank算法的马尔科夫过程分析</h3><p>假设{A, B, C}为马氏链，其转移概率矩阵如下所示：</p>
+<pre><code>0.7         0.1         0.2
+0.1         0.8         0.1
+0.05        0.05        0.9
+</code></pre><p>因为该马氏链是不可约的非周期的有限状态，平稳分布存在，则我们要求其平衡分布为：</p>
+<pre><code>X = 0.7X + 0.1Y + 0.05Z
+Y = 0.1X + 0.8Y + 0.05Z
+Z = 0.2X + 0.1Y + 0.9Z
+X + Y + Z = 1
+</code></pre><p>解得上述方程组的平稳分布为：X = 0.1765，Y = 0.2353，Z = 0.5882。<br>把PageRank收敛性问题转化为了求马尔可夫链的平稳分布的问题，那么我们就可以从马氏链的角度来分析问题。因此，对于PageRank的收敛性问题的证明也就迎刃而解了，只需要证明马氏链在什么情况下才会出现平稳分布即可。</p>
+<h1 id="-3"><a href="#-3" class="headerlink" title=" "></a> </h1><h2 id="HITS算法"><a href="#HITS算法" class="headerlink" title="HITS算法"></a>HITS算法</h2><h3 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h3><p>　　所谓“Authority”页面，是指与某个领域或者某个话题相关的高质量网页，比如搜索引擎领域，Google和百度首页即该领域的高质量网页，比如视频领域，优酷和土豆首页即该领域的高质量网页。<br>　　所谓“Hub”页面，指的是包含了很多指向高质量“Authority”页面链接的网页，比如hao123首页可以认为是一个典型的高质量“Hub”网页。</p>
+<h3 id="基本假设"><a href="#基本假设" class="headerlink" title="基本假设"></a>基本假设</h3><p>　　假设1：一个好的“Authority”页面会被很多好的“Hub”页面指向；<br>　　假设2：一个好的“Hub”页面会指向很多好的“Authority”页面；<br>　　<img src="http://hi.csdn.net/attachment/201202/6/0_1328534718Ug2w.gif" alt="此处输入图片的描述"></p>
+<h2 id="-4"><a href="#-4" class="headerlink" title=" "></a> </h2><h3 id="算法流程-1"><a href="#算法流程-1" class="headerlink" title="算法流程"></a>算法流程</h3><p>　　具体算法：可利用上面提到的两个基本假设，以及相互增强关系等原则进行多轮迭代计算，每轮迭代计算更新每个页面的两个权值，直到权值稳定不再发生明显的变化为止。<br>　　在网页排名中，HITS算法是与用户输入的查询请求密切相关的，即HITS算法在使用之前必须构建一个根集合，由于本次项目集中研究HITS算法在文档网络的运用价值，所以在此不详细说明。<br>具体流程<br>　　一、a(i), h(i)分别表示结点i的Authority Score 和 Hub值（中心度）<br>　　二、在初始情况下，在没有更多可利用信息前，每个页面的这两个权值都是相同的，可以都设置为1，即：a(i)=1, h(i)=1<br>　　三、每次迭代计算Hub权值和Authority权值：<br>　　　　网页 a (i)在此轮迭代中的Authority权值即为所有指向网页 a (i)页面的Hub权值之和：<br>　　　　 a (i) = Σ h (i) ;<br>　　　　 网页 a (i)的Hub分值即为所指向的页面的Authority权值之和：<br>　　　　 h (i) = Σ a (i) 。<br>　　　　对a (i)、h (i)进行规范化处理:<br>　　　　将所有网页的中心度都除以最高中心度以将其标准化：<br>　　　　a (i) = a (i)/|a(i)| ；<br>　　　　将所有网页的权威度都除以最高权威度以将其标准化：<br>　　　　 h (i) = h (i)/ |h(i)| ：<br>　　四、收敛<br>　　上一轮迭代计算中的权值和本轮迭代之后权值的差异，如果发现总体来说权值没有明显变化，说明系统已进入稳定状态，则可以结束计算，即a ( u),h(v)收敛 。</p>
+<h2 id="实验"><a href="#实验" class="headerlink" title="实验"></a>实验</h2><h4 id="实验一："><a href="#实验一：" class="headerlink" title="实验一："></a>实验一：</h4><p>新闻报道：</p>
+<blockquote>
+<p>　　原标题：陈君文一行到长沙县调研两型住宅产业化工作</p> <p>　　红网长沙县站3月17日讯(星沙时报记者<br>廖真怡)昨日，湖南省人大常委会副主任陈君文率队来到长沙县，就两型住宅产业化工作开展实地调研。长沙县人大常委会主任李建章，副主任彭军其，副县长李开兴陪同调研。</p><br><p>　　在福临镇泉源村集中安置房项目现场，调研组一行参观了该示范点去年底新建完成的轻钢结构房屋。据介绍，轻钢结构房屋是以冷弯薄壁型钢为结构体系的绿色建筑，具备抗震防火、保温隔热、节能环保等诸多特点。一栋250平方米的轻钢结构房屋建成耗时不到两个月，村民只需花费约六十万元即可入住。</p><br><p>　　近年来，长沙县加快推进两型住宅产业化工作，逐步将保障性住房、棚户区改造、学校、医院等政府投资类建设项目纳入两型住宅产业化实施。目前，已启动福临镇泉源村、影珠山村住宅产业化的试点工作，建成4栋冷弯薄壁轻钢房屋，均选择了农民集中居住点进行统一规划设计，集中运用住宅产业化技术建设。</p><br><p>　　陈君文强调，轻钢结构房屋集环保、节能、高效等优点于一体，符合绿色发展理念，在农村住房改造中值得大力推广。政府要出台相关政策加以扶持，示范点则要积极发挥带头引领作用，通过政府、市场两手抓，推动项目又好又快发展。</p>
+</blockquote>
+<p>利用textRank抽取关键词<br>　轻钢 0.01902440798<br>　房屋 0.01902440798<br>　长沙县 0.0139585118277<br>　两型 0.0139585118277<br>　住宅 0.0139585118277<br>　产业化 0.0139585118277<br>　工作 0.0139585118277<br>　福临 0.0136226056716<br>　泉源 0.0136226056716<br>　薄壁 0.0136226056716<br>耗时：0.0591039657593ｓ</p>
+<p>利用jieba包中内置基于tf-idf提取关键词<br>　轻钢 0.386129934778<br>　长沙县 0.309113581381<br>　产业化 0.267338155519<br>　两型 0.265661500064<br>　住宅 0.234284985021<br>　陈君文 0.199246125048<br>　房屋 0.183773798317<br>　泉源 0.136569330439<br>　结构 0.13419387805<br>　示范点 0.124362527232<br>耗时：0.00664782524109ｓ</p>
+<h4 id="实验二："><a href="#实验二：" class="headerlink" title="实验二："></a>实验二：</h4><p>新闻报道：</p>
+<blockquote>
+<p>　　原标题：美国宣布对朝鲜新的制裁措施</p> <p>　　据新华社电 美国政府16日宣布对朝鲜实施新的制裁措施。</p><br><p>　　美国白宫的一份新闻公告说，总统奥巴马当天发布行政令，旨在冻结朝鲜政府和朝鲜劳动党资产，禁止与朝鲜的特定交易。</p><br><p>　　美国财政部随后发布新闻公告，对朝鲜17个政府官员和机构以及20艘船只实施制裁。</p><br><p>　　新制裁针对朝鲜的能源、矿业、金融服务和交通业，禁止对朝鲜的商品、服务、技术出口以及在朝鲜进行新的投资。</p><br><p>　　白宫的新闻公告说，美国将继续对朝鲜施压，令其付出“代价”，直至朝鲜最终履行国际责任和义务。</p><br><p>　　联合国安理会3月2日一致通过第2270号决议，针对朝鲜核、导计划规定一系列制裁措施，重申支持重启六方会谈及通过和平方式实现半岛无核化。</p>
+</blockquote>
+<p>利用textRank抽取关键词<br>　朝鲜 0.0324132510978<br>　制裁 0.0239090726699<br>　公告 0.0206482233926<br>　新闻 0.0165485844427<br>　禁止 0.0164814054247<br>　措施 0.0158486641078<br>　实施 0.0138236030274<br>　美国 0.0133183833419<br>　朝鲜劳动党 0.012182643101<br>　资产 0.012182643101<br>耗时: 0.0261380672455ｓ</p>
+<p>利用jieba包中内置基于tf-idf提取关键词<br>　朝鲜 0.645829143617<br>　制裁 0.427122149321<br>　公告 0.161725613834<br>　措施 0.161613619075<br>　禁止 0.133688805542<br>　针对 0.118448597479<br>　20 0.11720360297<br>　17 0.11720360297<br>　16 0.11720360297<br>　2270 0.11720360297<br>耗时: 0.00232791900635ｓ</p>
+<h4 id="实验总结"><a href="#实验总结" class="headerlink" title="实验总结"></a>实验总结</h4><p>　　本次实验主要针对新浪网中近100条新闻作为实验的测试集，通过人工统计，对比评价基于图的关键词提取法（textRank）以及基于tf-idf的关键词的抽取法。其中选取了最具代表性2篇新闻作为本次的实验的实验样本。<br>　　实验一的关键词提取效果中，textRank和tf-idf均能较好提取出关键词，二个算法之间的关键词提取效果也并没有太大的差异。然而二者之间的耗时却有着明显的差异。由于textRank算法中涉及到网络图的构建以及多轮迭代，所以性能上普遍比tf-idf要低上一截。（jieba包中已包含了常见词语的idf词语，因此不需要大量文档进行学习）<br>　　实验二的关键词的提取效果中就有着明显差异，由于jieba包内置的tf-idf关键词提取算法，并不存在实时标注和学习的过程，在面对不同的主题的新闻时，关键词的提取效果就有些差异。如实验二中，textRank所抓取的10个关键词都较符合新闻的主题，而tf-idf所提取的就有少些无实际意义的词作为关键词。<br>　　总结，基于图的关键词的提取中算法，较于传统的tf-idf关键词提取效果有一定的提高。然而在本次实验室中的100多个测试集中，粗略统计，大多数新闻的关键词的提取中，tf-idf的关键词提取效果与textRank相比，并无多大差异。因此我觉得在实际应用中，还需要综合各种情况选取合适的算法。</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric Chen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://hareric.com/%E5%9F%BA%E4%BA%8E%E5%9B%BE%E7%9A%84%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/">https://hareric.com/%E5%9F%BA%E4%BA%8E%E5%9B%BE%E7%9A%84%E5%85%B3%E9%94%AE%E8%AF%8D%E6%8A%BD%E5%8F%96/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://hareric.com" target="_blank">Hareric</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/">python</a><a class="post-meta__tags" href="/tags/%E7%AE%97%E6%B3%95/">算法</a></div><div class="post_share"><div class="social-share" data-image="/img/gundam/gundam_32.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/%E3%80%8AHadoop%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%E3%80%8Bch5%20Compression/"><img class="prev-cover" src="/img/gundam/gundam_90.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">《Hadoop权威指南》ch5 Compression</div></div></a></div><div class="next-post pull-right"><a href="/python%E5%AE%9E%E7%94%A8%E8%A3%85%E9%A5%B0%E5%99%A8%E4%BB%A3%E7%A0%81/"><img class="next-cover" src="/img/gundam/gundam_76.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">python实用装饰器代码</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/HMM-Vetebi算法实现词性标注-python实现/" title="HMM+Vetebi算法实现词性标注 python实现"><img class="relatedPosts_cover" src="/img/gundam/gundam_95.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-10-30</div><div class="relatedPosts_title">HMM+Vetebi算法实现词性标注 python实现</div></div></a></div><div class="relatedPosts_item"><a href="/k-近邻算法(K Nearest Neighbor)/" title="k-近邻算法(K Nearest Neighbor)"><img class="relatedPosts_cover" src="/img/gundam/gundam_55.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-29</div><div class="relatedPosts_title">k-近邻算法(K Nearest Neighbor)</div></div></a></div><div class="relatedPosts_item"><a href="/scikit-learn的安装和基本使用教程/" title="scikit-learn的安装和基本使用教程"><img class="relatedPosts_cover" src="/img/gundam/gundam_7.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-05-22</div><div class="relatedPosts_title">scikit-learn的安装和基本使用教程</div></div></a></div><div class="relatedPosts_item"><a href="/python学习笔记----第7章类和类型/" title="python学习笔记----第7章类和类型"><img class="relatedPosts_cover" src="/img/gundam/gundam_25.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-23</div><div class="relatedPosts_title">python学习笔记----第7章类和类型</div></div></a></div><div class="relatedPosts_item"><a href="/一趟聚类(One-Pass Cluster)及python实现/" title="一趟聚类（One-pass Cluster）及python实现"><img class="relatedPosts_cover" src="/img/gundam/gundam_5.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-07-06</div><div class="relatedPosts_title">一趟聚类（One-pass Cluster）及python实现</div></div></a></div><div class="relatedPosts_item"><a href="/python实用装饰器代码/" title="python实用装饰器代码"><img class="relatedPosts_cover" src="/img/gundam/gundam_76.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-11-20</div><div class="relatedPosts_title">python实用装饰器代码</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(/img/gundam/gundam_32.jpg)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Eric Chen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>

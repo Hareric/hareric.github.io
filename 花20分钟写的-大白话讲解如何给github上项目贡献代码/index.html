@@ -1,0 +1,115 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>花20分钟写的-大白话讲解如何给github上项目贡献代码 | Hareric</title><meta name="description" content="转自 https:&#x2F;&#x2F;site.douban.com&#x2F;196781&#x2F;widget&#x2F;notes&#x2F;12161495&#x2F;note&#x2F;269163206&#x2F; 本文献给对git很迷茫的新手，注意是新手，但至少会点基本操作，有点基本概念的新手，我不会从怎么用github和git是什么开始讲的。如果作为新手你看书又看不进去，原理又太复杂，有没有直接了当告诉我们怎么给项目贡献代码，并和项目同步代码的大体流程。于是我快速"><meta name="keywords" content="git"><meta name="author" content="Eric Chen"><meta name="copyright" content="Eric Chen"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/dratini32X32.png"><link rel="canonical" href="https://hareric.com/%E8%8A%B120%E5%88%86%E9%92%9F%E5%86%99%E7%9A%84-%E5%A4%A7%E7%99%BD%E8%AF%9D%E8%AE%B2%E8%A7%A3%E5%A6%82%E4%BD%95%E7%BB%99github%E4%B8%8A%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE%E4%BB%A3%E7%A0%81/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="花20分钟写的-大白话讲解如何给github上项目贡献代码"><meta property="og:url" content="https://hareric.com/%E8%8A%B120%E5%88%86%E9%92%9F%E5%86%99%E7%9A%84-%E5%A4%A7%E7%99%BD%E8%AF%9D%E8%AE%B2%E8%A7%A3%E5%A6%82%E4%BD%95%E7%BB%99github%E4%B8%8A%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE%E4%BB%A3%E7%A0%81/"><meta property="og:site_name" content="Hareric"><meta property="og:description" content="转自 https:&#x2F;&#x2F;site.douban.com&#x2F;196781&#x2F;widget&#x2F;notes&#x2F;12161495&#x2F;note&#x2F;269163206&#x2F; 本文献给对git很迷茫的新手，注意是新手，但至少会点基本操作，有点基本概念的新手，我不会从怎么用github和git是什么开始讲的。如果作为新手你看书又看不进去，原理又太复杂，有没有直接了当告诉我们怎么给项目贡献代码，并和项目同步代码的大体流程。于是我快速"><meta property="og:image" content="https://hareric.com/img/gundam/gundam_74.jpg"><meta property="article:published_time" content="2016-06-05T13:03:44.000Z"><meta property="article:modified_time" content="2021-05-22T08:01:05.401Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'true'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: true,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: false,
+  postUpdate: '2021-05-22 16:01:05'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.4.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/dratini512X512.png" onerror="onerror=null;src='/img/image_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">38</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div></div></div><div id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url(/img/gundam/gundam_74.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">Hareric</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">花20分钟写的-大白话讲解如何给github上项目贡献代码</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-06-05T13:03:44.000Z" title="发表于 2016-06-05 21:03:44">2016-06-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-05-22T08:01:05.401Z" title="更新于 2021-05-22 16:01:05">2021-05-22</time></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>转自 <a target="_blank" rel="noopener" href="https://site.douban.com/196781/widget/notes/12161495/note/269163206/">https://site.douban.com/196781/widget/notes/12161495/note/269163206/</a></p>
+<p>本文献给对git很迷茫的新手，注意是新手，但至少会点基本操作，有点基本概念的新手，我不会从怎么用github和git是什么开始讲的。如果作为新手你看书又看不进去，原理又太复杂，有没有直接了当告诉我们怎么给项目贡献代码，并和项目同步代码的大体流程。于是我快速写了这么个东西。一来整理下自己混乱的思路，二来想号召大家一起用git开发点东西，可是好几个同鞋只会寂寞的给自己push。<br><span id="more"></span><br>我先说下 我之前对github操作的一些迷茫历程，然后之后是怎么解惑的。</p>
+<ol>
+<li><p>最最开始，我以为git clone ［项目地址］，也就是把代码clone下来 然后修改，然后push到项目里就可以了。<br>后来发现，这种情况只适合该项目属于你自己的情况，如果你git clone别人的项目代码，你想push都push不上去，因为 git push 不是需要你输入github帐号密码么。</p>
+</li>
+<li><p>然后 我就知道了 github上 不是有个fork么， 好，那么给别人的项目提交代码的方式就有了，先fork下别人的代码，于是你的github上就出现了同名的项目，这个项目就属于你自己了，你把这个自己的项目git clone到本地，修修改改，然后push到你自己的项目里，那么你如何把你对自己项目的改动，给发到之前fork的那个原项目呢，看见了没，在github上你的项目页面有个按钮，叫Pull request，对 你点它就会把你的修改发到对方的项目里，人还会收到邮件呢，由原项目主人决定是否接受你的修改。<br>但是，这样问题就出来了，在你fork他的项目之后，如果他又更新了代码，你自己fork的项目怎么做到和原项目同步呢？<br>我就想啊，是不是 我还得重新git clone原项目的代码，然后手动合并到我fork的项目里呢。。。<br>梁老师说，你丫这太蛋疼了，肯定不是这么麻烦，我细想，也是啊，这不2么。。。</p>
+</li>
+<li><p>然后，从《Pro git》上看到一个知识点，我擦，github居然可以给项目添加合作者，也就是说，假如你，对，说你呢，戴眼镜那个，你想参与我的项目，你跟我说一声，我就把你添加到我的项目里作为合作者，这个选项在项目的设置里面有，只要我添加你了，你就可以git clone我的代码然后修修改改，然后直接push上来就行了，就不用fork那么麻烦了，如果你要更新服务器代码，只要git pull就行了，看 合作者这东西多方便，就像我们在公司用svn似的。</p>
+</li>
+<li><p>然后我就想啊，有了合作者还需要你丫fork这个功能干啥？仔细一想，你写个好项目，不能随便加合作者啊，加了个熊孩子把你代码改废了可咋整，这年头熊孩子很多，我自己不就是一个么。所以fork肯定还是需要，fork就是专门预防熊孩子的，这就是真相！那么前面说道到fork之后如何与原项目同步的问题还在啊，没有得到解决。</p>
+</li>
+<li><p>于是《Pro git》再次给了我一个解答，具体流程是你啊想给我的项目做贡献，你先git clone我的代码到本地，然后修修改改，然后你不是不能push到我的项目里么，你可以先在github页面上fork我的项目，有了你自己的项目地址（url）之后呢，你在本地操作git remote add [sort name] [your url]，意思就是添加第二个远程仓库地址，这个仓库的“昵称”就是你刚指定的[sort name]，然后，你之后push文件呢 就通过指定这个［sort name］来push到这个你自己的仓库里。等你觉得想要把你改的发给原项目同步，就在你的项目上点Pull request按钮.说下另一种情况，如果是，原项目发生了改动，你要想同步到本地，就直接从git fetch origin 从原项目的地址同步代码，然后再merge就好了。当然，如《Pro git》上所写，你可以通过新建分支的方式往自己的项目上push，这样同步的时候直接fetch就行了。这块如果我没写明白或者你想知道怎么新建分支的方式push到自己的项目里，可以直接参考《Pro git》的“公开的小型项目”一节，那我的贡献就是指点你如何从这本书里快速的找到你想要的。= =。</p>
+</li>
+</ol>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric Chen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://hareric.com/%E8%8A%B120%E5%88%86%E9%92%9F%E5%86%99%E7%9A%84-%E5%A4%A7%E7%99%BD%E8%AF%9D%E8%AE%B2%E8%A7%A3%E5%A6%82%E4%BD%95%E7%BB%99github%E4%B8%8A%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE%E4%BB%A3%E7%A0%81/">https://hareric.com/%E8%8A%B120%E5%88%86%E9%92%9F%E5%86%99%E7%9A%84-%E5%A4%A7%E7%99%BD%E8%AF%9D%E8%AE%B2%E8%A7%A3%E5%A6%82%E4%BD%95%E7%BB%99github%E4%B8%8A%E9%A1%B9%E7%9B%AE%E8%B4%A1%E7%8C%AE%E4%BB%A3%E7%A0%81/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://hareric.com" target="_blank">Hareric</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/git/">git</a></div><div class="post_share"><div class="social-share" data-image="/img/gundam/gundam_74.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/mac%E4%B8%ADXAMPP%E5%A6%82%E4%BD%95%E5%BC%80%E5%90%AF%E5%B1%80%E5%9F%9F%E7%BD%91%E8%AE%BF%E9%97%AE/"><img class="prev-cover" src="/img/gundam/gundam_76.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">mac中XAMPP如何开启局域网访问</div></div></a></div><div class="next-post pull-right"><a href="/%E6%8B%9B%E8%81%98%E7%BD%91%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E8%AF%B4%E6%98%8E%E4%B9%A6/"><img class="next-cover" src="/img/gundam/gundam_107.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">招聘网数据库系统说明书</div></div></a></div></nav></article></main><footer id="footer" style="background-image: url(/img/gundam/gundam_74.jpg)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Eric Chen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>

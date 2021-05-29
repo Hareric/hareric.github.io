@@ -1,0 +1,185 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width,initial-scale=1"><title>HMM+Vetebi算法实现词性标注 python实现 | Hareric</title><meta name="description" content="隐马尔可夫模型（Hidden Markov Model，HMM）是统计模型，它用来描述一个含有隐含未知参数的马尔可夫过程。其难点是从可观察的参数中确定该过程的隐含参数。然后利用这些参数来作进一步的分析，例如模式识别。　　在正常的马尔可夫模型中，状态对于观察者来说是直接可见的。这样状态的转换概率便是全部的参数。而在隐马尔可夫模型中,状态并不是直接可见的，但受状态影响的某些变量则是可见的。每一个状"><meta name="keywords" content="NLP,python"><meta name="author" content="Eric Chen"><meta name="copyright" content="Eric Chen"><meta name="format-detection" content="telephone=no"><link rel="shortcut icon" href="/img/dratini32X32.png"><link rel="canonical" href="https://hareric.com/HMM-Vetebi%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E8%AF%8D%E6%80%A7%E6%A0%87%E6%B3%A8-python%E5%AE%9E%E7%8E%B0/"><meta http-equiv="Cache-Control" content="no-transform"><meta http-equiv="Cache-Control" content="no-siteapp"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//fonts.googleapis.com" crossorigin="crossorigin"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><meta property="og:type" content="article"><meta property="og:title" content="HMM+Vetebi算法实现词性标注 python实现"><meta property="og:url" content="https://hareric.com/HMM-Vetebi%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E8%AF%8D%E6%80%A7%E6%A0%87%E6%B3%A8-python%E5%AE%9E%E7%8E%B0/"><meta property="og:site_name" content="Hareric"><meta property="og:description" content="隐马尔可夫模型（Hidden Markov Model，HMM）是统计模型，它用来描述一个含有隐含未知参数的马尔可夫过程。其难点是从可观察的参数中确定该过程的隐含参数。然后利用这些参数来作进一步的分析，例如模式识别。　　在正常的马尔可夫模型中，状态对于观察者来说是直接可见的。这样状态的转换概率便是全部的参数。而在隐马尔可夫模型中,状态并不是直接可见的，但受状态影响的某些变量则是可见的。每一个状"><meta property="og:image" content="https://hareric.com/img/gundam/gundam_95.jpg"><meta property="article:published_time" content="2016-10-30T14:01:52.000Z"><meta property="article:modified_time" content="2021-05-23T13:21:37.047Z"><meta name="twitter:card" content="summary"><script>var activateDarkMode = function () {
+  document.documentElement.setAttribute('data-theme', 'dark')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#000')
+  }
+}
+var activateLightMode = function () {
+  document.documentElement.setAttribute('data-theme', 'light')
+  if (document.querySelector('meta[name="theme-color"]') !== null) {
+    document.querySelector('meta[name="theme-color"]').setAttribute('content', '#fff')
+  }
+}
+
+var getCookies = function (name) {
+  const value = `; ${document.cookie}`
+  const parts = value.split(`; ${name}=`)
+  if (parts.length === 2) return parts.pop().split(';').shift()
+}
+
+var autoChangeMode = 'true'
+var t = getCookies('theme')
+if (autoChangeMode === '1') {
+  var isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches
+  var isLightMode = window.matchMedia('(prefers-color-scheme: light)').matches
+  var isNotSpecified = window.matchMedia('(prefers-color-scheme: no-preference)').matches
+  var hasNoSupport = !isDarkMode && !isLightMode && !isNotSpecified
+
+  if (t === undefined) {
+    if (isLightMode) activateLightMode()
+    else if (isDarkMode) activateDarkMode()
+    else if (isNotSpecified || hasNoSupport) {
+      console.log('You specified no preference for a color scheme or your browser does not support it. I Schedule dark mode during night time.')
+      var now = new Date()
+      var hour = now.getHours()
+      var isNight = hour <= 6 || hour >= 18
+      isNight ? activateDarkMode() : activateLightMode()
+    }
+    window.matchMedia('(prefers-color-scheme: dark)').addListener(function (e) {
+      if (Cookies.get('theme') === undefined) {
+        e.matches ? activateDarkMode() : activateLightMode()
+      }
+    })
+  } else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else if (autoChangeMode === '2') {
+  now = new Date()
+  hour = now.getHours()
+  isNight = hour <= 6 || hour >= 18
+  if (t === undefined) isNight ? activateDarkMode() : activateLightMode()
+  else if (t === 'light') activateLightMode()
+  else activateDarkMode()
+} else {
+  if (t === 'dark') activateDarkMode()
+  else if (t === 'light') activateLightMode()
+}</script><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.css"><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Titillium+Web&amp;display=swap"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: {"path":"search.xml","languages":{"hits_empty":"找不到您查询的内容：${query}"}},
+  translate: {"defaultEncoding":2,"translateDelay":0,"msgToTraditionalChinese":"繁","msgToSimplifiedChinese":"簡"},
+  noticeOutdate: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  bookmark: {
+    message_prev: '按',
+    message_next: '键将本页加入书签'
+  },
+  runtime_unit: '天',
+  runtime: false,
+  copyright: undefined,
+  ClickShowText: undefined,
+  medium_zoom: true,
+  fancybox: true,
+  Snackbar: undefined,
+  justifiedGallery: {
+    js: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/js/jquery.justifiedGallery.min.js',
+    css: 'https://cdn.jsdelivr.net/npm/justifiedGallery/dist/css/justifiedGallery.min.css'
+  },
+  baiduPush: false,
+  highlightCopy: true,
+  highlightLang: true,
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isanchor: false    
+}</script><script id="config_change">var GLOBAL_CONFIG_SITE = { 
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isSidebar: true,
+  postUpdate: '2021-05-23 21:21:37'
+}</script><noscript><style>
+#nav {
+  opacity: 1
+}
+.justified-gallery img {
+  opacity: 1
+}
+</style></noscript><meta name="generator" content="Hexo 5.4.0"></head><body><div id="mobile-sidebar"><div id="menu_mask"></div><div id="mobile-sidebar-menus"><div class="mobile_author_icon"><img class="avatar-img" src="/img/dratini512X512.png" onerror="onerror=null;src='/img/image_404.gif'" alt="avatar"/></div><div class="mobile_post_data"><div class="mobile_data_item is-center"><div class="mobile_data_link"><a href="/archives/"><div class="headline">文章</div><div class="length_num">38</div></a></div></div><div class="mobile_data_item is-center">      <div class="mobile_data_link"><a href="/tags/"><div class="headline">标签</div><div class="length_num">17</div></a></div></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div></div></div><div id="body-wrap"><div id="sidebar"><i class="fas fa-arrow-right on" id="toggle-sidebar"></i><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar">     </div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E6%A8%A1%E5%9E%8B-%EF%BC%88Markov-Model%EF%BC%8CHMM%EF%BC%89"><span class="toc-number">1.</span> <span class="toc-text">马尔科夫模型 （Markov Model，HMM）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%9A%90%E9%A9%AC%E5%B0%94%E7%A7%91%E5%A4%AB%E6%A8%A1%E5%9E%8B%EF%BC%88Hidden-Markov-Model%EF%BC%8CHMM%EF%BC%89"><span class="toc-number">2.</span> <span class="toc-text">隐马尔科夫模型（Hidden Markov Model，HMM）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%BD%AC%E7%A7%BB%E6%A6%82%E7%8E%87%E7%9F%A9%E9%98%B5"><span class="toc-number">2.1.</span> <span class="toc-text">转移概率矩阵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%91%E5%B0%84%E6%A6%82%E7%8E%87%E7%9F%A9%E9%98%B5"><span class="toc-number">2.2.</span> <span class="toc-text">发射概率矩阵</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%A1%E7%AE%97%E8%A7%82%E6%B5%8B%E5%BA%8F%E5%88%97%E7%9A%84%E6%A6%82%E7%8E%87"><span class="toc-number">2.3.</span> <span class="toc-text">计算观测序列的概率</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Vetebi%E7%AE%97%E6%B3%95"><span class="toc-number">3.</span> <span class="toc-text">Vetebi算法</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#python%E4%BB%A3%E7%A0%81%E5%AE%9E%E7%8E%B0"><span class="toc-number">3.1.</span> <span class="toc-text">python代码实现</span></a></li></ol></li></ol></div></div></div><header class="post-bg" id="page-header" style="background-image: url(/img/gundam/gundam_95.jpg)"><nav id="nav"><span class="pull-left" id="blog_name"><a class="blog_title" id="site-name" href="/">Hareric</a></span><span class="pull-right menus"><div id="search_button"><a class="site-page social-icon search"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 归档</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> 开发工具</span><i class="fas fa-chevron-down expand"></i></a><ul class="menus_item_child"><li><a class="site-page" href="/%E5%93%88%E5%B8%8C&amp;%E7%BC%96%E7%A0%81%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> 哈希&amp;编码工具</span></a></li><li><a class="site-page" href="/json%E8%A7%A3%E6%9E%90%E5%B7%A5%E5%85%B7/"><i class="fa-fw fas fa-link"></i><span> json解析工具</span></a></li></ul></div></div><span class="toggle-menu close"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></span></span></nav><div id="post-info"><div id="post-title"><div class="posttitle">HMM+Vetebi算法实现词性标注 python实现</div></div><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2016-10-30T14:01:52.000Z" title="发表于 2016-10-30 22:01:52">2016-10-30</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2021-05-23T13:21:37.047Z" title="更新于 2021-05-23 21:21:37">2021-05-23</time></span></div><div class="meta-secondline"> <span class="post-meta-separator">|</span><span class="post-meta-pv-cv"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout_post" id="content-inner"><article id="post"><div class="post-content" id="article-container"><p>　　隐马尔可夫模型（Hidden Markov Model，HMM）是统计模型，它用来描述一个含有隐含未知参数的马尔可夫过程。其难点是从可观察的参数中确定该过程的隐含参数。然后利用这些参数来作进一步的分析，例如模式识别。<br>　　在正常的马尔可夫模型中，状态对于观察者来说是直接可见的。这样状态的转换概率便是全部的参数。而在隐马尔可夫模型中,状态并不是直接可见的，但受状态影响的某些变量则是可见的。每一个状态在可能输出的符号上都有一概率分布。因此输出符号的序列能够透露出状态序列的一些信息。<br><span id="more"></span></p>
+<h2 id="马尔科夫模型-（Markov-Model，HMM）"><a href="#马尔科夫模型-（Markov-Model，HMM）" class="headerlink" title="马尔科夫模型 （Markov Model，HMM）"></a>马尔科夫模型 （Markov Model，HMM）</h2><p>　　在考虑隐马尔科夫模型之前，我们首先要了解马尔可夫模型。马尔可夫模型描述了一类重要的随机过程，这个随机过程是随时间而随机变化的过程。我们常会考虑一个并不互相独立的随机变量组成的序列，序列中每个变量的值依赖于它前面的元素。简单来说：<br>　　<img src="/img/tuchuang/master/graph/%E9%A9%AC%E5%B0%94%E5%8F%AF%E5%A4%AB%E5%85%AC%E5%BC%8F.png" alt="马尔科夫公式"><br>　　<strong>即在特定条件下，系统在时间t的状态只与其在时间t-1的状态相关该随机过程称为一阶马尔可夫过程。</strong></p>
+<h2 id="隐马尔科夫模型（Hidden-Markov-Model，HMM）"><a href="#隐马尔科夫模型（Hidden-Markov-Model，HMM）" class="headerlink" title="隐马尔科夫模型（Hidden Markov Model，HMM）"></a>隐马尔科夫模型（Hidden Markov Model，HMM）</h2><p>　　如果知道某个事件的观察序列，是可以使用一个马尔可夫模型来计算；但是，有时候有些事件是不可以直接观测到的。例如，本篇博文要讲的词性标注这个例子：<br>　　字串(可观察序列)：　结合　　/　　成　　/　　分子　　/　　时<br>　　字的词性(隐序列)：　vn,v　/ 　v,nr,q,a,an,j　/　 n　/ 　Ng,nr,Dg　/<br>　　<strong>HMM就是估算隐藏于表面事件背后的事件的概率。</strong><br>　　<img src="/img/tuchuang/master/graph/HMM%E5%85%AC%E5%BC%8F.png" alt="HMM公式"></p>
+<h3 id="转移概率矩阵"><a href="#转移概率矩阵" class="headerlink" title="转移概率矩阵"></a>转移概率矩阵</h3><p>　　转移概率指的是估计的事件的序列之间的概率关系，上诉例子中，我们所需要的转移概率为P(v|vn)p(v|v)…P(v|n)表示前一个词的词性是名词，则这个词为动词的概率。通过训练集的统计我们可以统计得出转移概率矩阵。即词性转移矩阵：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">v</th>
+<th style="text-align:center">n</th>
+<th style="text-align:center">s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">ｖ</td>
+<td style="text-align:center">0.5</td>
+<td style="text-align:center">0.375</td>
+<td style="text-align:center">0.125</td>
+</tr>
+<tr>
+<td style="text-align:center">ｎ</td>
+<td style="text-align:center">0.25</td>
+<td style="text-align:center">0.125</td>
+<td style="text-align:center">0.625</td>
+</tr>
+<tr>
+<td style="text-align:center">ｓ</td>
+<td style="text-align:center">0.25</td>
+<td style="text-align:center">0.375</td>
+<td style="text-align:center">0.375</td>
+</tr>
+</tbody>
+</table>
+<p>　　</p>
+<h3 id="发射概率矩阵"><a href="#发射概率矩阵" class="headerlink" title="发射概率矩阵"></a>发射概率矩阵</h3><p>　　发射概率指的是，隐藏序列和可观察序列之间的概率关系，上述例子中，我们需要的发射概率为P(结合｜v)…表示“结合”这个词为动词的概率。通过训练集的统计，我们同样也能够得出发射概率矩阵：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center"></th>
+<th style="text-align:center">v</th>
+<th style="text-align:center">n</th>
+<th style="text-align:center">s</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">结合</td>
+<td style="text-align:center">0.5</td>
+<td style="text-align:center">0.375</td>
+<td style="text-align:center">0.125</td>
+</tr>
+<tr>
+<td style="text-align:center">成</td>
+<td style="text-align:center">0.25</td>
+<td style="text-align:center">0.125</td>
+<td style="text-align:center">0.625</td>
+</tr>
+<tr>
+<td style="text-align:center">分子</td>
+<td style="text-align:center">0.25</td>
+<td style="text-align:center">0.375</td>
+<td style="text-align:center">0.375</td>
+</tr>
+<tr>
+<td style="text-align:center">时</td>
+<td style="text-align:center">0.25</td>
+<td style="text-align:center">0.375</td>
+<td style="text-align:center">0.375</td>
+</tr>
+</tbody>
+</table>
+<p><em>ps 上面矩阵的数据都是乱写的</em></p>
+<h3 id="计算观测序列的概率"><a href="#计算观测序列的概率" class="headerlink" title="计算观测序列的概率"></a>计算观测序列的概率</h3><p>　　有了转移矩阵和概率矩阵，我们终于可以来预测句子中每个词的词性。最直接易懂的方法便是穷举法，我们通过求每个词每个词性每种情况的概率，取最大的概率作为我们预测的词性标注。<br>　　例如上述例子：<br>　　<strong>字串</strong>：　结合　　/　　成　　/　　分子　　/　　时<br>　　<strong>字的词性</strong>：　vn,v　/ 　v,nr,q,a,an,j　/　 n　/ 　Ng,nr,Dg　/<br>　　第一种可能的词性序列是：vn,v,n,Ng<br>　　即:<br>　　P(结合,成,分子,时,vn,v,n,Ng)<br>　=p(结合|vn)×p(成|v)×p(分子|n)×p(时|Ng)×p(vn|start)×p(v|vn)×p(n|v)×p(Ng|n)
+　</p>
+<h2 id="Vetebi算法"><a href="#Vetebi算法" class="headerlink" title="Vetebi算法"></a>Vetebi算法</h2><p>　　如果直接使用上述的穷举法去寻找最优的概率，毋庸置疑该算法的复杂度是相当复杂的，例如上述例子仅有４个词却总共有36种情况需要考虑，也就是说我们需要分别计算36种情况的概率，然后取最大值作为我们的预测结果。那么我们有没有什么可以简化的方法吗？<br>　　因此在算法优化上，我们可以引用维特比算法(Vetebi)。维特比算法是现代数字通信中使用最频繁的算法，同时也是很多自然语言处理的解码算法。<br>　　算法描述：依据最后一个时刻中概率最高的状态，逆向通过找其路径中的上一个最大部分最优路径，从而找到整个最优路径。<br>　　<img src="/img/tuchuang/master/graph/%E9%83%A8%E5%88%86%E6%9C%80%E4%BC%98%E8%B7%AF%E5%BE%84.png" alt="部分最优路径"><br>　　vt(j)是所有序列中在t时刻以状态j终止的最大概率,所对应的路径为部分最优路径。</p>
+<p><strong>实例</strong><br>　　还是以“结合　成　分子　时”为例子，在计算概率的途中，我们可以理解为不断寻找最优解的过程。<br>　　我们可以首先考虑“结合 成”这2个词的词性计算词性概率，对于“成”的6个词性分别都有一个最大的概率和对应的前置词性如图所示：<br>　　<img src="/img/tuchuang/master/graph/vetebi_1.png" alt="Vetebi_1"><br>　　接着考虑“分子”的词性为n，它的最优前置词性为an，如图所示：<br>　　<img src="/img/tuchuang/master/graph/Vetebi_2.jpg" alt="Vetebi_2"><br>　　最后考虑“时”的词性Ng,nr,Dg，分别计算得最后的概率为0.1，0.2，0.3；如图所示：<br>　　<img src="/img/tuchuang/master/graph/Vetebi_3.jpg" alt="Vetebi_3"><br>　　取最大概率Dg为0.3，从后往前将全局最优路径导出，如图所示：<br>　　<img src="/img/tuchuang/master/graph/Vetebi_4.jpg" alt="Vetebi_4"><br>　　最后我们可以得出最终结果: 结合/v; 成/an; 分子/n; 时/Dg
+　　</p>
+<h3 id="python代码实现"><a href="#python代码实现" class="headerlink" title="python代码实现"></a>python代码实现</h3><p>核心代码<br><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">hmm</span>(<span class="params">self, sentence_list</span>):</span></span><br><span class="line">    <span class="string">&quot;&quot;&quot;</span></span><br><span class="line"><span class="string">    :param sentence_list: 已分好词的句子列表</span></span><br><span class="line"><span class="string">    :return: 对应每个词的词性列表</span></span><br><span class="line"><span class="string">    &quot;&quot;&quot;</span></span><br><span class="line">    sentence_list = <span class="built_in">list</span>(sentence_list)</span><br><span class="line">    sentence_len = sentence_list.__len__()  <span class="comment"># 句子长度</span></span><br><span class="line">    cixin_len = self.cixin_list.__len__()  <span class="comment"># 词性个数</span></span><br><span class="line">    <span class="comment"># 概率分布表 .[i, j, 0]表示第i个词为第j个词性的最优概率;.[i, j, 1]表示该最优概率的前一个词的词性索引,若为-1表示该词为第一个词无前词</span></span><br><span class="line">    pro_table = np.zeros((sentence_len, cixin_len, <span class="number">2</span>))</span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        pro_table[<span class="number">0</span>, :, <span class="number">0</span>] = self.emitter_pro_matrix[self.vocab_map[sentence_list[<span class="number">0</span>]]]</span><br><span class="line">        pro_table[<span class="number">0</span>, :, <span class="number">1</span>] = -<span class="number">1</span></span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(sentence_len)[<span class="number">1</span>:]:</span><br><span class="line">            <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(cixin_len):</span><br><span class="line">                <span class="keyword">if</span> self.emitter_pro_matrix[self.vocab_map[sentence_list[i]], j] == <span class="number">0</span>:</span><br><span class="line">                    <span class="keyword">continue</span></span><br><span class="line">                pre_cixin_pro = pro_table[i-<span class="number">1</span>, :, <span class="number">0</span>]</span><br><span class="line">                pre_cixin_pro *= self.trans_pro_matrix[j]</span><br><span class="line">                pre_cixin_pro *= self.emitter_pro_matrix[self.vocab_map[sentence_list[i]], j]</span><br><span class="line">                pro_table[i, j, <span class="number">0</span>] = np.<span class="built_in">max</span>(pre_cixin_pro)</span><br><span class="line">                pro_table[i, j, <span class="number">1</span>] = np.where(pre_cixin_pro == np.<span class="built_in">max</span>(pre_cixin_pro))[<span class="number">0</span>][<span class="number">0</span>]</span><br><span class="line">        result_cixin_map = []</span><br><span class="line">        sy = <span class="built_in">int</span>(np.where(pro_table[-<span class="number">1</span>, :, <span class="number">0</span>] == np.<span class="built_in">max</span>(pro_table[-<span class="number">1</span>, :, <span class="number">0</span>]))[<span class="number">0</span>][<span class="number">0</span>])</span><br><span class="line">        t = -<span class="number">1</span></span><br><span class="line">    <span class="keyword">except</span> KeyError:</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;无法正常运行 有词语不存在词库之中&quot;</span></span><br><span class="line">    <span class="keyword">while</span> sy != -<span class="number">1</span>:</span><br><span class="line">        result_cixin_map.append(sy)</span><br><span class="line">        sy = <span class="built_in">int</span>(pro_table[t, sy, <span class="number">1</span>])</span><br><span class="line">        t -= <span class="number">1</span></span><br><span class="line">    result_cixin = []</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> s <span class="keyword">in</span> result_cixin_map[::-<span class="number">1</span>]:</span><br><span class="line">        result_cixin.append(self.cixin_list[s])</span><br><span class="line">    <span class="keyword">return</span> result_cixin</span><br></pre></td></tr></table></figure></p>
+<p>完整代码及数据<a target="_blank" rel="noopener" href="https://github.com/Hareric/Natural-Language-Processing/tree/master/HMM">下载</a></p>
+<p>　　
+　　
+　　
+　　</p>
+</div><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eric Chen</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://hareric.com/HMM-Vetebi%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E8%AF%8D%E6%80%A7%E6%A0%87%E6%B3%A8-python%E5%AE%9E%E7%8E%B0/">https://hareric.com/HMM-Vetebi%E7%AE%97%E6%B3%95%E5%AE%9E%E7%8E%B0%E8%AF%8D%E6%80%A7%E6%A0%87%E6%B3%A8-python%E5%AE%9E%E7%8E%B0/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://hareric.com" target="_blank">Hareric</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/NLP/">NLP</a><a class="post-meta__tags" href="/tags/python/">python</a></div><div class="post_share"><div class="social-share" data-image="/img/gundam/gundam_95.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/python%E5%AE%9E%E7%94%A8%E8%A3%85%E9%A5%B0%E5%99%A8%E4%BB%A3%E7%A0%81/"><img class="prev-cover" src="/img/gundam/gundam_76.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">python实用装饰器代码</div></div></a></div><div class="next-post pull-right"><a href="/Java-DBhelper%E7%B1%BB/"><img class="next-cover" src="/img/gundam/gundam_38.jpg" onerror="onerror=null;src='/img/image_404.gif'"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Java DBhelper类</div></div></a></div></nav><div class="relatedPosts"><div class="relatedPosts_headline"><i class="fas fa-thumbs-up fa-fw"></i><span> 相关推荐</span></div><div class="relatedPosts_list"><div class="relatedPosts_item"><a href="/基于规则的分词算法(MM RMM算法)及python代码实现/" title="基于规则的分词算法(MM RMM算法)及python代码实现"><img class="relatedPosts_cover" src="/img/gundam/gundam_105.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-10-08</div><div class="relatedPosts_title">基于规则的分词算法(MM RMM算法)及python代码实现</div></div></a></div><div class="relatedPosts_item"><a href="/k-近邻算法(K Nearest Neighbor)/" title="k-近邻算法(K Nearest Neighbor)"><img class="relatedPosts_cover" src="/img/gundam/gundam_55.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-29</div><div class="relatedPosts_title">k-近邻算法(K Nearest Neighbor)</div></div></a></div><div class="relatedPosts_item"><a href="/scikit-learn的安装和基本使用教程/" title="scikit-learn的安装和基本使用教程"><img class="relatedPosts_cover" src="/img/gundam/gundam_7.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-05-22</div><div class="relatedPosts_title">scikit-learn的安装和基本使用教程</div></div></a></div><div class="relatedPosts_item"><a href="/python学习笔记----第7章类和类型/" title="python学习笔记----第7章类和类型"><img class="relatedPosts_cover" src="/img/gundam/gundam_25.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-04-23</div><div class="relatedPosts_title">python学习笔记----第7章类和类型</div></div></a></div><div class="relatedPosts_item"><a href="/一趟聚类(One-Pass Cluster)及python实现/" title="一趟聚类（One-pass Cluster）及python实现"><img class="relatedPosts_cover" src="/img/gundam/gundam_5.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-07-06</div><div class="relatedPosts_title">一趟聚类（One-pass Cluster）及python实现</div></div></a></div><div class="relatedPosts_item"><a href="/python实用装饰器代码/" title="python实用装饰器代码"><img class="relatedPosts_cover" src="/img/gundam/gundam_76.jpg"><div class="relatedPosts_main is-center"><div class="relatedPosts_date"><i class="far fa-calendar-alt fa-fw"></i> 2016-11-20</div><div class="relatedPosts_title">python实用装饰器代码</div></div></a></div></div></div></article></main><footer id="footer" style="background-image: url(/img/gundam/gundam_95.jpg)" data-type="photo"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2021 By Eric Chen</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly"><span>Butterfly</span></a></div></div></footer></div><section id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="font_plus" type="button" title="放大字体"><i class="fas fa-plus"></i></button><button id="font_minus" type="button" title="缩小字体"><i class="fas fa-minus"></i></button><button id="translateLink" type="button" title="简繁转换">繁</button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></section><div class="search-dialog" id="local-search"><div class="search-dialog__title" id="local-search-title">本地搜索</div><div id="local-input-panel"><div id="local-search-input"><div class="local-search-box"><input class="local-search-box--input" placeholder="搜索文章" type="text"/></div></div></div><hr/><div id="local-search-results"><div id="local-hits"></div><div id="local-stats"><div class="local-search-stats__hr" id="hr"><span>由</span> <a target="_blank" rel="noopener" href="https://github.com/wzpan/hexo-generator-search" style="color:#49B1F5;">hexo-generator-search</a>
+ <span>提供支持</span></div></div></div><span class="search-close-button"><i class="fas fa-times"></i></span></div><div id="search-mask"></div><div><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="/js/tw_cn.js"></script><script src="https://cdn.jsdelivr.net/npm/medium-zoom/dist/medium-zoom.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instant.page/instantpage.min.js" type="module" defer></script><script src="/js/search/local-search.js"></script><div class="js-pjax"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></div></body></html>
